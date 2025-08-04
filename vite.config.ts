@@ -40,40 +40,6 @@ export default defineConfig({
 				example: resolve(__dirname, "example.html"),
 				library: resolve(__dirname, "library.html"),
 			},
-			output: {
-				manualChunks: {
-					react: ["react", "react-dom", "react-router-dom"],
-					mantine: [
-						"@mantine/core",
-						"@mantine/hooks",
-						"@mantine/notifications",
-					],
-					mantineCharts: ["@mantine/charts"],
-					shapediver: [
-						"@shapediver/sdk.geometry-api-sdk-v2",
-						"@shapediver/sdk.platform-api-sdk-v1",
-					],
-					shapediverViewer: [
-						"@shapediver/viewer.session",
-						"@shapediver/viewer.viewport",
-					],
-					shapediverViewerMisc: [
-						"@shapediver/viewer.utils.mime-type",
-						"@shapediver/viewer.features.drawing-tools",
-						"@shapediver/viewer.features.gumball",
-						"@shapediver/viewer.features.interaction",
-					],
-					stargate: ["@shapediver/sdk.stargate-sdk-v1"],
-					utils: ["immer", "zustand", "zod", "uuid", "gl-matrix"],
-					markdown: [
-						"react-markdown",
-						"remark-directive",
-						"remark-gfm",
-						"unist-util-visit",
-					],
-					agent: ["openai", "langfuse"],
-				},
-			},
 		},
 		sourcemap: true,
 	},
