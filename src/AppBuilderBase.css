@@ -20,3 +20,18 @@ html, body {
 	height: 100vh;
 	overflow: hidden;
 }
+
+/* Fix for WebGL viewport sizing issues */
+canvas {
+	min-width: 1px !important;
+	min-height: 1px !important;
+}
+
+/* Ensure viewport containers have proper dimensions */
+[class*="viewport"], 
+[id*="viewport"] {
+	min-width: 100px !important;
+	min-height: 100px !important;
+	width: 100% !important;
+	height: 100% !important;
+}
