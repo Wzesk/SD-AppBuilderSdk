@@ -1,139 +1,179 @@
-import ModelCard from "@AppBuilderShared/components/ui/ModelCard";
+import ViewportComponent from "@AppBuilderShared/components/shapediver/viewport/ViewportComponent";
+import ViewportIcons from "@AppBuilderShared/components/shapediver/viewport/ViewportIcons";
+import ViewportOverlayWrapper from "@AppBuilderShared/components/shapediver/viewport/ViewportOverlayWrapper";
+import {useSession} from "@AppBuilderShared/hooks/shapediver/useSession";
 import {
-	Blockquote,
 	Card,
-	Center,
 	Container,
-	Group,
-	Image,
 	Text,
+	Stack,
+	Title,
+	Tabs,
+	Grid,
 } from "@mantine/core";
-import {IconInfoCircle} from "@tabler/icons-react";
+import {IconSettings, IconEye, IconDownload} from "@tabler/icons-react";
+import {SESSION_SETTINGS_MODE} from "@shapediver/viewer.session";
 import React from "react";
-import classes from "~/pages/HomePage.module.css";
 
-const modelCards = [
-	{
-		title: "Model View Page",
-		description:
-			"This example opens a session with a ShapeDiver model, displays it in a viewport, and creates two tabs of components representing the parameters and exports defined by the model. All components are easily customizable.",
-		btnText: "Open example",
-		btnLink: "/view",
-		imageSrc:
-			"https://img2.storyblok.com/1280x0/filters:format(webp)/f/92524/2048x1481/81a30bd9de/0202.png",
-		imageAlt: "Under Construction",
-	},
-	{
-		title: "Model Select Page",
-		description:
-			"This example displays a single viewport into which sessions with multiple ShapeDiver models can be loaded at once. The settings of the model which is selected first are used to configure the viewport (camera, controls, etc). Parameter and export controls are shown for all selected models.",
-		btnText: "Open example",
-		btnLink: "/modelSelect",
-		imageSrc:
-			"https://img2.storyblok.com/1280x0/filters:format(webp)/f/92524/2048x1481/81a30bd9de/0202.png",
-		imageAlt: "Under Construction",
-	},
-	{
-		title: "Multiple Viewports and Models Page",
-		description: "This example displays multiple viewports and models.",
-		btnText: "Open example",
-		btnLink: "/multipleViewport",
-		imageSrc:
-			"https://img2.storyblok.com/1280x0/filters:format(webp)/f/92524/2048x1481/81a30bd9de/0202.png",
-		imageAlt: "Under Construction",
-	},
-	{
-		title: "Custom UI Page",
-		description:
-			"This example shows how to use Grasshopper to influence the parameter panel (show/hide parameters, add custom parameters). This motivated the development of the web app, which allows for more flexibility.",
-		btnText: "Open example",
-		btnLink: "/customui",
-		imageSrc:
-			"https://img2.storyblok.com/1280x0/filters:format(webp)/f/92524/2048x1481/81a30bd9de/0202.png",
-		imageAlt: "Under Construction",
-	},
-	{
-		title: "Web App Test",
-		description:
-			"Static example page showing the capabilities of the app builder page.",
-		btnText: "Open example",
-		btnLink: "/appBuilderTest",
-		imageSrc:
-			"https://img2.storyblok.com/1280x0/filters:format(webp)/f/92524/2048x1481/81a30bd9de/0202.png",
-		imageAlt: "Under Construction",
-	},
-	{
-		title: "Web App",
-		description:
-			"An example app controlled by a Grasshopper model. The parameter, text, and image widgets can be parametrically controlled.",
-		btnText: "Open example",
-		btnLink: "/appBuilder",
-		imageSrc:
-			"https://img2.storyblok.com/1280x0/filters:format(webp)/f/92524/2048x1481/81a30bd9de/0202.png",
-		imageAlt: "Under Construction",
-	},
-];
-/**
- * Function that creates the home page.
- * On this page, an introduction is provided and all other pages are linked.
- *
- * Currently under construction.
- *
- * @returns
- */
 export default function HomePage() {
+	// Get environment variables
+	const designTicket = import.meta.env.VITE_DESIGN_TICKET;
+	const viewerTicket = import.meta.env.VITE_VIEWER_TICKET;
+	const shapediverEndpoint = import.meta.env.VITE_SHAPEDIVER_ENDPOINT;
+
+	// Debug: Log environment variables
+	console.log("Environment variables:", {
+		designTicket,
+		viewerTicket,
+		shapediverEndpoint
+	});
+
+	// Setup sessions for both viewers
+	const designSession = useSession({
+		id: "design-session",
+		ticket: designTicket,
+		modelViewUrl: shapediverEndpoint,
+		registerParametersAndExports: true,
+		excludeViewports: ["viewer-viewport"], // Only load into design-viewport
+	});
+
+	const viewerSession = useSession({
+		id: "viewer-session", 
+		ticket: viewerTicket,
+		modelViewUrl: shapediverEndpoint,
+		registerParametersAndExports: true,
+		excludeViewports: ["design-viewport"], // Only load into viewer-viewport
+	});
+
+	// Debug: Log session states
+	console.log("Sessions:", {
+		designSession: designSession.sessionApi ? "loaded" : "loading",
+		designError: designSession.error,
+		viewerSession: viewerSession.sessionApi ? "loaded" : "loading", 
+		viewerError: viewerSession.error
+	});
+
+	// Debug: Log viewport container heights
+	console.log("Viewport heights:", {
+		windowHeight: typeof window !== 'undefined' ? window.innerHeight : 'unknown',
+		calculatedHeight: typeof window !== 'undefined' ? window.innerHeight - 120 : 'unknown'
+	});
+
 	return (
-		<>
-			<Container size="lg" px="lg">
-				<h1>ShapeDiver React Example</h1>
+		<Container size="100%" px="sm" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+			{/* <Title order={1} size="h3" mb="md">ShapeDiver React Example</Title> */}
 
-				<Card shadow="sm" p="lg" radius="md">
-					<Card.Section>
-						<Image
-							src="https://viewer.shapediver.com/v3/images/under_construction.png"
-							height={160}
-							alt="Under Construction"
-						/>
-					</Card.Section>
-					<Group gap="md" mt="md" mb="xs">
-						<Text size="sm" c="dimmed">
-							On this example page we present several use cases
-							that utilize custom React components and hooks for
-							the creation of viewports, sessions, controls for
-							parameters and exports, and much more. All these
-							components and hooks are provided in the repository
-							and can be customized easily.
+			<Tabs defaultValue="designer" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+				<Tabs.List>
+					<Tabs.Tab value="designer" leftSection={<IconSettings size={14} />}>
+						Designer
+					</Tabs.Tab>
+					<Tabs.Tab value="viewer" leftSection={<IconEye size={14} />}>
+						Viewer
+					</Tabs.Tab>
+					<Tabs.Tab value="exporter" leftSection={<IconDownload size={14} />}>
+						Exporter
+					</Tabs.Tab>
+				</Tabs.List>
+
+				<Tabs.Panel value="designer" style={{ flex: 1 }}>
+					<Stack gap="md" pt="sm">
+						<Grid style={{ minHeight: 'calc(100vh - 150px)' }}>
+							<Grid.Col span={10} style={{ minHeight: 'calc(100vh - 150px)' }}>
+								<div style={{ height: 'calc(100vh - 150px)' }}>
+									<ViewportComponent 
+										id="design-viewport"
+										sessionSettingsId="design-session"
+										sessionSettingsMode={SESSION_SETTINGS_MODE.MANUAL}
+									>
+										<ViewportOverlayWrapper>
+											<ViewportIcons />
+										</ViewportOverlayWrapper>
+									</ViewportComponent>
+								</div>
+							</Grid.Col>
+							<Grid.Col span={2} style={{ minHeight: 'calc(100vh - 150px)' }}>
+								<Card shadow="sm" p="md" radius="md" style={{ height: '100%' }}>
+									<Stack gap="sm">
+										<Text fw={500}>Designer Controls</Text>
+										<Text size="sm" c="dimmed">
+											Session Status: {designSession.sessionApi ? "✅ Connected" : "⏳ Loading..."}
+										</Text>
+										{designSession.error && (
+											<Text size="sm" c="red">
+												❌ Error: {designSession.error.message}
+											</Text>
+										)}
+										<Text size="xs" c="dimmed">
+											Ticket: {designTicket ? "✅ Loaded" : "❌ Missing"}
+										</Text>
+										<Text size="xs" c="dimmed">
+											Endpoint: {shapediverEndpoint || "❌ Missing"}
+										</Text>
+									</Stack>
+								</Card>
+							</Grid.Col>
+						</Grid>
+					</Stack>
+				</Tabs.Panel>
+
+				<Tabs.Panel value="viewer" style={{ flex: 1 }}>
+					<Stack gap="md" pt="sm">
+						<Grid style={{ minHeight: 'calc(100vh - 150px)' }}>
+							<Grid.Col span={10} style={{ minHeight: 'calc(100vh - 150px)' }}>
+								<div style={{ height: 'calc(100vh - 150px)' }}>
+									<ViewportComponent 
+										id="viewer-viewport"
+										sessionSettingsId="viewer-session"
+										sessionSettingsMode={SESSION_SETTINGS_MODE.MANUAL}
+									>
+										<ViewportOverlayWrapper>
+											<ViewportIcons />
+										</ViewportOverlayWrapper>
+									</ViewportComponent>
+								</div>
+							</Grid.Col>
+							<Grid.Col span={2} style={{ minHeight: 'calc(100vh - 150px)' }}>
+								<Card shadow="sm" p="md" radius="md" style={{ height: '100%' }}>
+									<Stack gap="sm">
+										<Text fw={500}>Viewer Controls</Text>
+										<Text size="sm" c="dimmed">
+											Session Status: {viewerSession.sessionApi ? "✅ Connected" : "⏳ Loading..."}
+										</Text>
+										{viewerSession.error && (
+											<Text size="sm" c="red">
+												❌ Error: {viewerSession.error.message}
+											</Text>
+										)}
+										<Text size="xs" c="dimmed">
+											Ticket: {viewerTicket ? "✅ Loaded" : "❌ Missing"}
+										</Text>
+										<Text size="xs" c="dimmed">
+											Endpoint: {shapediverEndpoint || "❌ Missing"}
+										</Text>
+									</Stack>
+								</Card>
+							</Grid.Col>
+						</Grid>
+					</Stack>
+				</Tabs.Panel>
+
+				<Tabs.Panel value="exporter" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+					<Stack gap="md" pt="sm" style={{ flex: 1 }}>
+						<Title order={2}>Export & Download</Title>
+						<Text size="md" c="dimmed">
+							Export your 3D models in various formats.
 						</Text>
-						<Center w="100%">
-							<Blockquote
-								color="blue"
-								icon={<IconInfoCircle />}
-								mt="xl"
-							>
-								Check out the source code for this example{" "}
-								<a href="https://github.com/shapediver/ShapeDiverReactExample">
-									here
-								</a>
-								.
-							</Blockquote>
-						</Center>
-					</Group>
-				</Card>
-
-				<div className={classes.pageContainer}>
-					{modelCards.map((card, index) => (
-						<ModelCard
-							key={index}
-							title={card.title}
-							description={card.description}
-							btnText={card.btnText}
-							btnLink={card.btnLink}
-							imageSrc={card.imageSrc}
-							imageAlt={card.imageAlt}
-						/>
-					))}
-				</div>
-			</Container>
-		</>
+						<Card shadow="sm" p="lg" radius="md" style={{ flex: 1 }}>
+							<Text>
+								The Exporter tab will contain options for exporting and downloading 
+								3D models in different formats such as STL, OBJ, 3DM, and more. 
+								Configure export settings and quality options.
+							</Text>
+						</Card>
+					</Stack>
+				</Tabs.Panel>
+			</Tabs>
+		</Container>
 	);
 }

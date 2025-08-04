@@ -2,3 +2,21 @@
 [class^="mantine"] {
 	font-weight: var(--appbuilder-default-font-weight);
 }
+
+/* Ensure full height for viewport maximization */
+html, body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+#root {
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
+
+.viewer-fullscreen-area {
+	height: 100vh;
+	overflow: hidden;
+}
