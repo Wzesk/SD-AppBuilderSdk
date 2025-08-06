@@ -8,7 +8,7 @@
 		],
 		"paths": {
 			"@AppBuilderShared/*": [
-				"./shared/*"
+				"shared/*"
 			],
 			"~/*": [
 				"./*"
