@@ -2,6 +2,8 @@ import ViewportComponent from "@AppBuilderShared/components/shapediver/viewport/
 import ViewportIcons from "@AppBuilderShared/components/shapediver/viewport/ViewportIcons";
 import ViewportOverlayWrapper from "@AppBuilderShared/components/shapediver/viewport/ViewportOverlayWrapper";
 import {useSession} from "@AppBuilderShared/hooks/shapediver/useSession";
+import {useShiftClickObjectId} from "@AppBuilderShared/hooks/shapediver/viewer/interaction/useShiftClickObjectId";
+import ObjectIdPopup from "@AppBuilderShared/components/shapediver/ui/ObjectIdPopup";
 import {
 	Card,
 	Container,
@@ -22,8 +24,10 @@ import {
 	Loader,
 	Alert,
 	ScrollArea,
+	Collapse,
+	Switch,
 } from "@mantine/core";
-import {IconSettings, IconEye, IconDownload, IconInfoCircle} from "@tabler/icons-react";
+import {IconSettings, IconEye, IconDownload, IconInfoCircle, IconChevronDown, IconChevronUp} from "@tabler/icons-react";
 import {SESSION_SETTINGS_MODE} from "@shapediver/viewer.session";
 import { createSession } from "@shapediver/viewer.session";
 import {
@@ -137,6 +141,20 @@ export default function HomePage() {
 	const [savedJsonData, setSavedJsonData] = useState<any>(null);
 	const [isJsonModalOpen, setIsJsonModalOpen] = useState(false);
 
+	// Active tab state
+	const [activeTab, setActiveTab] = useState('designer');
+
+	// Editor state
+	const [isEditorOpen, setIsEditorOpen] = useState(false);
+	const [panelOrientation, setPanelOrientation] = useState('horizontal');
+	const [panelLength, setPanelLength] = useState('36');
+
+	// Shift+click object ID detection hook for design viewport
+	const { showPopup, objectId, popupPosition, hidePopup } = useShiftClickObjectId('design-viewport', 'design-session');
+	
+	// Debug logging for shift+click functionality
+	console.log('Shift+click debug state:', { showPopup, objectId, popupPosition });
+	
 	// Function to upload design to server
 	const uploadDesignToServer = async (designData: any) => {
 		try {
@@ -416,6 +434,10 @@ export default function HomePage() {
 				await updateParameter('select_material', newParameters.select_material);
 			}, 100);
 			
+			// Show success notification and switch to design tab
+			alert(`Design "${fullData.name || 'Unnamed Design'}" loaded successfully into control panel!`);
+			setActiveTab('designer');
+			
 			console.log('Design loaded successfully into control panel');
 			
 		} catch (error) {
@@ -672,7 +694,7 @@ export default function HomePage() {
 		<Container size="100%" px="sm" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
 			{/* <Title order={1} size="h3" mb="md">ShapeDiver React Example</Title> */}
 
-			<Tabs defaultValue="designer" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+			<Tabs value={activeTab} onChange={(value) => setActiveTab(value || 'designer')} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
 				<Tabs.List>
 					<Tabs.Tab value="designer" leftSection={<IconSettings size={14} />}>
 						Design
@@ -698,126 +720,191 @@ export default function HomePage() {
 										<ViewportOverlayWrapper>
 											<ViewportIcons />
 										</ViewportOverlayWrapper>
+										{/* Object ID popup for shift+click functionality */}
+										<ObjectIdPopup
+											visible={showPopup}
+											objectId={objectId}
+											position={popupPosition}
+											onClose={hidePopup}
+										/>
 									</ViewportComponent>
 								</div>
 							</Grid.Col>
 							<Grid.Col span={4} style={{ minHeight: 'calc(100vh - 150px)' }}>
-								<Card shadow="sm" p="md" radius="md" style={{ height: '100%', overflowY: 'auto' }}>
-									<Stack gap="lg">
-										{/* Header with Editable Name Fields and Save Button */}
-										<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-											<div style={{ flex: 1 }}>
-												<TextInput
-													value={designName}
-													onChange={(event) => setDesignName(event.currentTarget.value)}
-													placeholder="Enter design name"
-													size="md"
-													fw={600}
-													styles={{
-														input: {
-															fontWeight: 600,
-															fontSize: '18px',
-															border: 'none',
-															backgroundColor: 'transparent',
-															padding: '0',
-														}
-													}}
-												/>
-												<TextInput
-													value={userName}
-													onChange={(event) => setUserName(event.currentTarget.value)}
-													placeholder="Enter user name"
+								<Card shadow="sm" p="md" radius="md" style={{ height: '100%', display: 'flex', flexDirection: 'column', overflowX: 'hidden' }}>
+									<div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', minWidth: 0 }}>
+										<Stack gap="lg">
+											{/* Header with Editable Name Fields and Save Button */}
+											<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', minWidth: 0 }}>
+												<div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+													<TextInput
+														value={designName}
+														onChange={(event) => setDesignName(event.currentTarget.value)}
+														placeholder="Enter design name"
+														size="md"
+														fw={600}
+														styles={{
+															input: {
+																fontWeight: 600,
+																fontSize: '18px',
+																border: 'none',
+																backgroundColor: 'transparent',
+																padding: '0',
+																width: '100%',
+																minWidth: 0,
+															}
+														}}
+													/>
+													<TextInput
+														value={userName}
+														onChange={(event) => setUserName(event.currentTarget.value)}
+														placeholder="Enter user name"
+														size="sm"
+														c="dimmed"
+														mt="xs"
+														styles={{
+															input: {
+																color: 'var(--mantine-color-dimmed)',
+																border: 'none',
+																backgroundColor: 'transparent',
+																padding: '0',
+																width: '100%',
+																minWidth: 0,
+															}
+														}}
+													/>
+												</div>
+												<Button
+													onClick={saveDesign}
+													loading={isSavingDesign}
+													variant="light"
 													size="sm"
-													c="dimmed"
-													mt="xs"
-													styles={{
-														input: {
-															color: 'var(--mantine-color-dimmed)',
-															border: 'none',
-															backgroundColor: 'transparent',
-															padding: '0',
-														}
-													}}
-												/>
+													style={{ marginLeft: '16px', flexShrink: 0 }}
+												>
+													Save Design
+												</Button>
 											</div>
-											<Button
-												onClick={saveDesign}
-												loading={isSavingDesign}
-												variant="light"
-												size="sm"
-												style={{ marginLeft: '16px', flexShrink: 0 }}
-											>
-												Save Design
-											</Button>
-										</div>
 
-										{/* Compact Controls Row */}
-										<Grid>
-											<Grid.Col span={4}>
-												<Text size="sm" fw={500} mb="xs">Width</Text>
-												<NumberInput
-													value={parameters.width}
-													onChange={(value) => {
-														const numValue = typeof value === 'string' ? parseInt(value) || 36 : value || 36;
-														setParameters(prev => ({ ...prev, width: numValue }));
-														updateParameter('width', numValue);
+											{/* Compact Controls Row */}
+											<Grid>
+												<Grid.Col span={4}>
+													<Text size="sm" fw={500} mb="xs">Width</Text>
+													<NumberInput
+														value={parameters.width}
+														onChange={(value) => {
+															const numValue = typeof value === 'string' ? parseInt(value) || 36 : value || 36;
+															setParameters(prev => ({ ...prev, width: numValue }));
+															updateParameter('width', numValue);
+														}}
+														min={36}
+														max={200}
+														step={1}
+														size="sm"
+														placeholder="36-200"
+													/>
+												</Grid.Col>
+												<Grid.Col span={4}>
+													<Text size="sm" fw={500} mb="xs">Height</Text>
+													<NumberInput
+														value={parameters.height}
+														onChange={(value) => {
+															const numValue = typeof value === 'string' ? parseInt(value) || 36 : value || 36;
+															setParameters(prev => ({ ...prev, height: numValue }));
+															updateParameter('height', numValue);
+														}}
+														min={36}
+														max={200}
+														step={1}
+														size="sm"
+														placeholder="36-200"
+													/>
+												</Grid.Col>
+												<Grid.Col span={4}>
+													<Text size="sm" fw={500} mb="xs">Pattern</Text>
+													<Select
+														value={parameters.select_pattern}
+														onChange={(value) => updateParameter('select_pattern', value)}
+														data={patternOptions}
+														placeholder="Select"
+														size="sm"
+													/>
+												</Grid.Col>
+											</Grid>
+
+											{/* Editor Section */}
+											<div>
+												<div 
+													style={{ 
+														display: 'flex', 
+														justifyContent: 'space-between', 
+														alignItems: 'center', 
+														cursor: 'pointer',
+														padding: '8px 0',
+														borderBottom: isEditorOpen ? '1px solid var(--mantine-color-gray-3)' : 'none'
 													}}
-													min={36}
-													max={200}
-													step={1}
-													size="sm"
-													placeholder="36-200"
-												/>
-											</Grid.Col>
-											<Grid.Col span={4}>
-												<Text size="sm" fw={500} mb="xs">Height</Text>
-												<NumberInput
-													value={parameters.height}
-													onChange={(value) => {
-														const numValue = typeof value === 'string' ? parseInt(value) || 36 : value || 36;
-														setParameters(prev => ({ ...prev, height: numValue }));
-														updateParameter('height', numValue);
-													}}
-													min={36}
-													max={200}
-													step={1}
-													size="sm"
-													placeholder="36-200"
-												/>
-											</Grid.Col>
-											<Grid.Col span={4}>
-												<Text size="sm" fw={500} mb="xs">Pattern</Text>
-												<Select
-													value={parameters.select_pattern}
-													onChange={(value) => updateParameter('select_pattern', value)}
-													data={patternOptions}
-													placeholder="Select"
-													size="sm"
-												/>
-											</Grid.Col>
-										</Grid>
+													onClick={() => setIsEditorOpen(!isEditorOpen)}
+												>
+													<Text size="sm" fw={500}>Editor</Text>
+													<ActionIcon variant="subtle" size="sm">
+														{isEditorOpen ? <IconChevronUp size={16} /> : <IconChevronDown size={16} />}
+													</ActionIcon>
+												</div>
+												
+												<Collapse in={isEditorOpen}>
+													<Stack gap="md" pt="md">
+														<Text size="xs" c="dimmed" style={{ fontStyle: 'italic' }}>
+															Shift click to remove panels from pattern
+														</Text>
+														
+														<div>
+															<Text size="sm" fw={500} mb="xs">Panel Creation</Text>
+															
+															<Grid>
+																<Grid.Col span={6}>
+																	<Text size="xs" mb="xs">Orientation</Text>
+																	<Switch
+																		checked={panelOrientation === 'vertical'}
+																		onChange={(event) => setPanelOrientation(event.currentTarget.checked ? 'vertical' : 'horizontal')}
+																		onLabel="Vertical"
+																		offLabel="Horizontal"
+																		size="sm"
+																	/>
+																</Grid.Col>
+																<Grid.Col span={6}>
+																	<Text size="xs" mb="xs">Length</Text>
+																	<Select
+																		value={panelLength}
+																		onChange={(value) => setPanelLength(value || '36')}
+																		data={[
+																			{ value: '36', label: '36"' },
+																			{ value: '54', label: '54"' },
+																			{ value: '72', label: '72"' },
+																			{ value: '90', label: '90"' },
+																			{ value: '108', label: '108"' }
+																		]}
+																		size="sm"
+																		placeholder="Select length"
+																	/>
+																</Grid.Col>
+															</Grid>
+														</div>
+													</Stack>
+												</Collapse>
+											</div>
+										</Stack>
+									</div>
 
-										{/* Referring URI Field */}
-										<div style={{ marginTop: 'auto', paddingTop: '16px' }}>
-											<TextInput
-												value={referringUri}
-												onChange={(event) => setReferringUri(event.currentTarget.value)}
-												placeholder="Enter referring URI"
-												size="sm"
-												styles={{
-													input: {
-														color: 'var(--mantine-color-dimmed)',
-														border: 'none',
-														backgroundColor: 'transparent',
-														padding: '0',
-														fontSize: '12px',
-													}
-												}}
-											/>
-										</div>
-
-										{/* Session Status */}
-										<div style={{ marginTop: 'auto' }}>
+									{/* Bottom Status Bar */}
+									<div style={{ 
+										display: 'flex', 
+										justifyContent: 'space-between', 
+										alignItems: 'flex-end',
+										paddingTop: '16px',
+										borderTop: '1px solid var(--mantine-color-gray-2)',
+										marginTop: '16px'
+									}}>
+										{/* Session Status - Bottom Left */}
+										<div>
 											<Text size="xs" fw={500} mb="xs">Session Status</Text>
 											<Text size="xs" c="dimmed">
 												Designer: {designSession.sessionApi ? "✅ Connected" : "⏳ Loading..."}
@@ -831,7 +918,29 @@ export default function HomePage() {
 												</Text>
 											)}
 										</div>
-									</Stack>
+
+										{/* Referring URI - Bottom Right */}
+										<div style={{ textAlign: 'right', maxWidth: '200px', minWidth: 0, overflow: 'hidden' }}>
+											<TextInput
+												value={referringUri}
+												onChange={(event) => setReferringUri(event.currentTarget.value)}
+												placeholder="Enter referring URI"
+												size="sm"
+												styles={{
+													input: {
+														color: 'var(--mantine-color-dimmed)',
+														border: 'none',
+														backgroundColor: 'transparent',
+														padding: '0',
+														fontSize: '12px',
+														textAlign: 'right',
+														width: '100%',
+														minWidth: 0,
+													}
+												}}
+											/>
+										</div>
+									</div>
 								</Card>
 							</Grid.Col>
 						</Grid>
