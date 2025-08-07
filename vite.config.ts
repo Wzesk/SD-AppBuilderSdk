@@ -45,8 +45,8 @@ export default defineConfig({
 	},
 	resolve: {
 		alias: {
-			"@AppBuilderShared": path.resolve(__dirname, "src/shared"),
-			"~": path.resolve(__dirname, "src"),
+			"@AppBuilderShared": path.resolve(__dirname, __dirname.endsWith('src') ? "shared" : "src/shared"),
+			"~": path.resolve(__dirname, __dirname.endsWith('src') ? "." : "src"),
 		},
 	},
 });
