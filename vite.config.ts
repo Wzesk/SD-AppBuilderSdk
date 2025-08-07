@@ -48,5 +48,6 @@ export default defineConfig({
 			"@AppBuilderShared": path.resolve(__dirname, __dirname.endsWith('src') ? "shared" : "src/shared"),
 			"~": path.resolve(__dirname, __dirname.endsWith('src') ? "." : "src"),
 		},
+		extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
 	},
 });
