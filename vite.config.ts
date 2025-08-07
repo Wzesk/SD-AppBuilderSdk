@@ -44,10 +44,16 @@ export default defineConfig({
 		sourcemap: true,
 	},
 	resolve: {
-		alias: {
-			"@AppBuilderShared": path.resolve(__dirname, __dirname.endsWith('src') ? "shared" : "src/shared"),
-			"~": path.resolve(__dirname, __dirname.endsWith('src') ? "." : "src"),
-		},
+		alias: [
+			{
+				find: "@AppBuilderShared",
+				replacement: path.resolve(__dirname, __dirname.endsWith('src') ? "shared" : "src/shared")
+			},
+			{
+				find: "~",
+				replacement: path.resolve(__dirname, __dirname.endsWith('src') ? "." : "src")
+			}
+		],
 		extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
 	},
 });
