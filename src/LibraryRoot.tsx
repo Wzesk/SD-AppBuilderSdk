@@ -1,4 +1,4 @@
-import RootComponent from "@AppBuilderShared/components/RootComponent";
+import RootComponent from "./shared/components/RootComponent";
 import "~/instruments/sentry";
 import React from "react";
 import ReactDOM from "react-dom/client";

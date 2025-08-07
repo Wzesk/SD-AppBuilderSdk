@@ -1,9 +1,9 @@
-import ViewportComponent from "@AppBuilderShared/components/shapediver/viewport/ViewportComponent";
-import ViewportIcons from "@AppBuilderShared/components/shapediver/viewport/ViewportIcons";
-import ViewportOverlayWrapper from "@AppBuilderShared/components/shapediver/viewport/ViewportOverlayWrapper";
-import {useSession} from "@AppBuilderShared/hooks/shapediver/useSession";
-import {useShiftClickObjectId} from "@AppBuilderShared/hooks/shapediver/viewer/interaction/useShiftClickObjectId";
-import ObjectIdPopup from "@AppBuilderShared/components/shapediver/ui/ObjectIdPopup";
+import ViewportComponent from "../shared/components/shapediver/viewport/ViewportComponent";
+import ViewportIcons from "../shared/components/shapediver/viewport/ViewportIcons";
+import ViewportOverlayWrapper from "../shared/components/shapediver/viewport/ViewportOverlayWrapper";
+import {useSession} from "../shared/hooks/shapediver/useSession";
+import {useShiftClickObjectId} from "../shared/hooks/shapediver/viewer/interaction/useShiftClickObjectId";
+import ObjectIdPopup from "../shared/components/shapediver/ui/ObjectIdPopup";
 import {
 	Card,
 	Container,

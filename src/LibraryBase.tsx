@@ -1,8 +1,8 @@
-import NotificationWrapper from "@AppBuilderShared/components/ui/NotificationWrapper";
-import {useCustomTheme} from "@AppBuilderShared/hooks/ui/useCustomTheme";
-import AppBuilderPage from "@AppBuilderShared/pages/appbuilder/AppBuilderPage";
-import LoaderPage from "@AppBuilderShared/pages/misc/LoaderPage";
-import LibraryPage from "@AppBuilderShared/pages/platform/LibraryPage";
+import NotificationWrapper from "./shared/components/ui/NotificationWrapper";
+import {useCustomTheme} from "./shared/hooks/ui/useCustomTheme";
+import AppBuilderPage from "./shared/pages/appbuilder/AppBuilderPage";
+import LoaderPage from "./shared/pages/misc/LoaderPage";
+import LibraryPage from "./shared/pages/platform/LibraryPage";
 import "@mantine/charts/styles.css";
 import {Center, MantineProvider} from "@mantine/core";
 import "@mantine/core/styles.css";
