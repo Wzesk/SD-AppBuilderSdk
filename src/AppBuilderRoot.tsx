@@ -10,13 +10,13 @@ import ViewportOverlayWrapper from "@AppBuilderShared/components/shapediver/view
 import {IComponentContext} from "@AppBuilderShared/types/context/componentcontext";
 import {isAttributeVisualizationWidget} from "@AppBuilderShared/types/shapediver/appbuilder";
 import {PARAMETER_TYPE} from "@shapediver/viewer.session";
-import "instruments/sentry";
+import "~/instruments/sentry";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import AppBuilderBase from "~/AppBuilderBase";
 import {PlausibleTracker} from "~/instruments/plausible";
 import {setupWebVitalsTracking} from "~/instruments/webvitals";
-import {SentryErrorReportingContext} from "./instruments/sentry";
+import {SentryErrorReportingContext} from "~/instruments/sentry";
 
 const root = ReactDOM.createRoot(
 	document.getElementById("root") as HTMLElement,
